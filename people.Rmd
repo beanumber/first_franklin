@@ -1,0 +1,44 @@
+---
+title: "People"
+author: "Ben Baumer"
+date: "March 9, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(sf)
+library(mapview)
+library(tigris)
+library(leaflet)
+```
+
+
+```{r}
+voters <- read_delim("~/Dropbox/git/vote-predict/data-raw/postfileupdate0131201820180206-8944629051.txt", "\t", escape_double = FALSE) %>%
+  rename(long = `Longitude `)
+
+voters_sf <- voters %>%
+  filter(long < -72) %>%
+  st_as_sf(coords = c("long", "Latitude"), crs = 4326, na.fail = FALSE)
+
+baumers <- voters_sf %>% 
+  filter(LastName %in% c("Baumer", "Philbrick"))
+
+districts <- state_legislative_districts("MA", house = "lower", cb = TRUE) %>%
+  st_as_sf() %>%
+  st_transform(4326) %>%
+  mutate(district_area = ALAND)
+
+franklin1 <- districts %>%
+  filter(NAME == "1st Franklin")
+
+franklin_voters <- voters_sf %>%
+  st_join(franklin1, join = st_within, left = FALSE)
+
+map_voters <- franklin_voters %>% 
+  filter(City == "Cummington")
+
+x <- mapview(franklin1, alpha.regions = 0.1)
+mapview(map_voters, map = x, zcol = "Sex", legend = TRUE)  
+```

@@ -1,0 +1,28 @@
+name: "www"
+output_dir: "../docs"
+include: "gfx"
+exclude: ["makefile", "data", "gfx_old", "lectures/figure"]
+navbar:
+  title: "1st Franklin"
+  left:
+    - text: "Home"
+      icon: fa-home
+      href: index.html
+    - text: "Resources"
+      menu: 
+        - text: "Helpful Links"
+          href: resources.html
+        - text: "Troubleshooting R Markdown"
+          href: https://smithcollege-sds.github.io/sds-public/rmarkdown_problems.html
+#        - text: "Installing rgdal"
+#          href: rgdal-install.html
+#        - text: "Spatial Intersection"
+#          href: contours.html
+output:
+  html_document:
+    theme: united
+    highlight: pygments
+    toc: true
+    toc_float: true
+    include:
+      after_body: include/after_body.html

@@ -1,0 +1,22 @@
+---
+title: "First Franklin"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(sf)
+library(masspol)
+library(mapview)
+```
+
+## State rep map
+
+```{r}
+districts <- ma_districts %>%
+  full_join(ma_reps, by = c("NAME" = "District"))
+
+mapview(districts, zcol = "Party", alpha.regions = 0.1, 
+        col.regions = c("gray", "blue", "gray", "red", "yellow"))
+
+```
+

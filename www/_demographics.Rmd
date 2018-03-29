@@ -1,0 +1,116 @@
+---
+title: "First Franklin"
+author: "Ben Baumer"
+date: "March 8, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidycensus)
+library(tidyverse)
+library(tigris)
+options(tigris_use_cache = TRUE)
+library(sf)
+census_api_key("2c4b7b2488a6277854f4d4075fd50571f34882e9")
+library(masspol)
+```
+
+https://tarakc02.github.io/dot-density/
+https://journal.r-project.org/archive/2016/RJ-2016-043/RJ-2016-043.pdf
+
+https://walkerke.github.io/tidycensus/articles/spatial-data.html
+
+```{r}
+plot(districts)
+mapview::mapview(districts)
+
+# 2nd biggest district
+districts %>%
+  arrange(desc(district_area))
+```
+
+
+```{r}
+head(ma_tracts)
+plot(ma_tracts)
+```
+
+## State rep map
+
+```{r}
+ma_reps
+ma_districts
+
+districts <- ma_districts %>%
+  full_join(ma_reps, by = c("NAME" = "District"))
+
+library(mapview)
+mapview(districts, zcol = "Party", alpha.regions = 0.1, 
+        col.regions = c("gray", "blue", "gray", "red", "yellow"))
+
+library(leaflet)
+leaflet() %>%
+  addTiles() %>%
+  addPolygons(data = districts, weight = 1, 
+              popup = )
+```
+
+
+
+```{r}
+class(ma_tracts)
+class(districts)
+
+combined <- ma_tracts %>%
+  st_join(districts, join = st_covered_by)
+
+districts_data <- combined %>%
+  group_by(NAME.y) %>%
+  summarize(N = n(), 
+            computed_area = sum(computed_area), 
+            district_area = sum(district_area),
+            population = sum(B01003_001),
+            income = mean(B19301_001)) %>%
+  mutate(pop_density = population / district_area)
+
+combined %>%
+  filter(is.na(NAME.y)) %>%
+  mapview()
+
+
+hamp <- combined %>%
+  filter(NAME.y == "1st Hampshire")
+
+plot(hamp)
+
+```
+
+http://strimas.com/r/tidy-sf/
+
+```{r}
+library(leaflet)
+
+# Create a continuous palette function
+pal <- colorNumeric(
+  palette = "Blues",
+  domain = combined$B01003_001)
+
+leaflet(data = combined) %>%
+  addTiles() %>%
+  addPolygons(stroke = FALSE, fillOpacity = 0.5,
+    color = ~pal(B01003_001)) %>%
+  addLegend(pal = pal, values = ~B01003_001)
+```
+
+```{r}
+library(mapview)
+mapview(districts_data, alpha.regions = 0.5)
+mapview(hamp)
+```
+
+
+```{r}
+districts_data %>%
+  as_data_frame() %>%
+  View()
+```
