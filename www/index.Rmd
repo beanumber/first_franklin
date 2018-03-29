@@ -7,7 +7,7 @@ library(tidyverse)
 library(sf)
 library(masspol)
 library(mapview)
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, fig.width = 8)
 ```
 
 ## State rep map
